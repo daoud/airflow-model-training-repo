@@ -1,7 +1,7 @@
 steps:
 # 1️⃣ Clone your GitHub repo
 - name: 'gcr.io/cloud-builders/git'
-  args: ['clone', '--depth=1', 'https://github.com/daoud/model-training-repo.git']
+  args: ['clone', '--depth=1', 'https://github.com/daoud/airflow-model-training-repo.git']
 
 # 2️⃣ Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
