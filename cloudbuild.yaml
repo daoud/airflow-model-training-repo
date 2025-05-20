@@ -1,25 +1,47 @@
 steps:
+# 1️⃣ Clone your GitHub repo
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', '--depth=1', 'https://github.com/daoud/model-training-repo.git']
+
+# 2️⃣ Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/serious-studio-456210-r8/bank-campaign-model', '.']
+  args: [
+    'build',
+    '-t', 'gcr.io/serious-studio-456210-r8/bank-campaign-model:$SHORT_SHA',
+    '-t', 'gcr.io/serious-studio-456210-r8/bank-campaign-model:latest',
+    '.'
+  ]
+
+# 3️⃣ Push Docker images
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/serious-studio-456210-r8/bank-campaign-model:$SHORT_SHA']
 
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/serious-studio-456210-r8/bank-campaign-model']
+  args: ['push', 'gcr.io/serious-studio-456210-r8/bank-campaign-model:latest']
 
-- name: 'gcr.io/serious-studio-456210-r8/bank-campaign-model'
+# 4️⃣ Run tests using the newly built image
+- name: 'gcr.io/serious-studio-456210-r8/bank-campaign-model:$SHORT_SHA'
   entrypoint: 'bash'
   args:
-   - '-c'
-   - |
-      python -m pytest
+    - '-c'
+    - |
+      pip install -q pytest  # Ensure pytest is available
+      pytest
 
-- name: 'gcr.io/cloud-builders/git'
-  args: ['clone', 'https://github.com/sidoncloud/model-training-repo.git']
-
+# 5️⃣ Copy DAG file to Cloud Storage bucket
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'model-training-repo/bank_campaign_model_training.py', 'gs://us-central1-mlops-airflow-faa6f9bc-bucket/dags']
+  args: [
+    'cp',
+    'model-training-repo/bank_campaign_model_training.py',
+    'gs://${_DAGS_BUCKET}/dags'
+  ]
 
 images:
-- 'gcr.io/serious-studio-456210-r8/bank-campaign-model'
+- 'gcr.io/serious-studio-456210-r8/bank-campaign-model:$SHORT_SHA'
+- 'gcr.io/serious-studio-456210-r8/bank-campaign-model:latest'
+
+substitutions:
+  _DAGS_BUCKET: 'us-central1-mlops-airflow-faa6f9bc-bucket'
 
 options:
   logging: CLOUD_LOGGING_ONLY
