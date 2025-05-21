@@ -32,7 +32,7 @@ steps:
 - name: 'gcr.io/cloud-builders/gsutil'
   args: [
     'cp',
-    'model-training-repo/bank_campaign_model_training.py',
+    'airflow-model-training-repo/bank_campaign_model_training.py',
     'gs://${_DAGS_BUCKET}/dags'
   ]
 
