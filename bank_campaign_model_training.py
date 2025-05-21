@@ -16,7 +16,6 @@ import json
 from google.cloud import bigquery
 from datetime import datetime
 from sklearn.pipeline import make_pipeline
-
 # Initialize Google Cloud Storage client
 storage_client = storage.Client()
 bucket = storage_client.bucket("airflow-ml-ops")
